@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THE FINAL DAY - Official Shelter & Survival Terminal</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Share+Tech+Mono&display=swap');
+
+    :root {
+      --bg-color: #0a0a0c;
+      --card-bg: #121216;
+      --border-color: #2a2a35;
+      --accent-color: #d93838;
+      --accent-hover: #ff4d4d;
+      --text-main: #e1e1e6;
+      --text-muted: #7a7a8c;
+      --soldout-color: #4a4a5a;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      font-family: 'Share Tech Mono', monospace;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Top Navigation Bar */
+    nav {
+      width: 100%;
+      background: #0f0f13;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 15px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+    }
+
+    nav button {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      letter-spacing: 1.5px;
+      padding: 8px 12px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    nav button:hover, nav button.active {
+      color: var(--accent-color);
+      border-bottom: 2px solid var(--accent-color);
+    }
+
+    .container {
+      width: 90%;
+      max-width: 850px;
+      margin-top: 30px;
+      box-sizing: border-box;
+    }
+
+    /* Tab Content Area */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    h1 {
+      font-family: 'Cinzel', serif;
+      color: var(--accent-color);
+      text-align: center;
+      font-size: 2.2rem;
+      letter-spacing: 3px;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .sub-title {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-align: center;
+      margin-bottom: 30px;
+      letter-spacing: 1px;
+    }
+
+    /* 1. Main - Countdown & Scanner */
+    .timer-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 25px 15px;
+      margin-bottom: 30px;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+    }
+
+    .timer-display {
+      font-family: 'Cinzel', serif;
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--accent-color);
+      letter-spacing: 2px;
+      word-break: break-all;
+    }
+
+    .scan-area {
+      background: var(--card-bg);
+      border: 1px dashed var(--border-color);
+      border-radius: 4px;
+      padding: 30px 15px;
+      margin-top: 20px;
+      margin-bottom: 50px;
+      text-align: center;
+    }
+
+    .touch-pad {
+      width: 90px;
+      height: 90px;
+      border: 2px solid var(--accent-color);
+      border-radius: 50%;
+      margin: 20px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 2rem;
+      background: #181820;
+      user-select: none;
+      transition: 0.2s;
+    }
+
+    .touch-pad:active {
+      transform: scale(0.95);
+      background: #252530;
+    }
+
+    .progress-bar {
+      width: 80%;
+      height: 6px;
+      background: #181820;
+      margin: 20px auto;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: var(--accent-color);
+      transition: width 0.1s;
+    }
+
+    .result-box {
+      margin-top: 20px;
+      padding: 15px;
+      background: #181820;
+      border-left: 3px solid var(--accent-color);
+      display: none;
+      color: var(--text-main);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      text-align: left;
+    }
+
+    /* 2. Black Market */
+    .market-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 25px;
+      margin-bottom: 30px;
+    }
+
+    .item-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .item-card.sold-out {
+      opacity: 0.5;
+      border-color: #222;
+      background: #0d0d10;
+    }
+
+    .item-title { color: var(--text-main); font-size: 1.05rem; font-weight: bold; }
+    .item-price { color: var(--accent-color); margin: 8px 0; font-weight: bold; font-size: 0.95rem; }
+    .item-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 15px; }
+
+    .buy-btn {
+      background: #181820;
+      border: 1px solid var(--accent-color);
+      color: var(--accent-color);
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Share Tech Mono', monospace;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    .buy-btn:hover { background: var(--accent-color); color: #000; }
+
+    .buy-btn.disabled {
+      background: #1a1a20;
+      border-color: var(--soldout-color);
+      color: var(--soldout-color);
+      cursor: not-allowed;
+    }
+
+    .sold-out-badge {
+      position: absolute;
+      top: 15px; right: 15px;
+      background: var(--soldout-color);
+      color: #000;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    /* Delivery Status Box (다중 목록 지원) */
+    .delivery-status-container {
+      margin-top: 20px;
+      margin-bottom: 50px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 20px;
+      display: none;
+    }
+
+    .delivery-title {
+      color: var(--accent-color);
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      border-bottom: 1px dashed var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    .delivery-item {
+      background: #181820;
+      border-left: 2px solid var(--accent-color);
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .delivery-item:last-child {
+      margin-bottom: 0;
+    }
+
+    /* 3. Guide & Map */
+    .guide-box, .map-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+    }
+
+    .guide-step {
+      color: var(--accent-color);
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .map-cell {
+      background: #181820;
+      border: 1px solid var(--border-color);
+      padding: 15px 5px;
+      font-size: 0.8rem;
+    }
+
+    .map-cell.danger { border-color: var(--accent-color); color: var(--accent-color); }
+
+    /* 4. Records (Board) */
+    .input-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 20px;
+      margin-top: 25px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    input[type="text"], textarea {
+      background: #08080a;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 10px;
+      border-radius: 4px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.85rem;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .submit-btn {
+      background: var(--accent-color);
+      color: #000;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    .records-list {
+      margin-top: 25px;
+      margin-bottom: 50px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .record-card {
+      background: var(--card-bg);
+      border-left: 3px solid var(--accent-color);
+      padding: 12px 15px;
+    }
+
+    .record-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .record-author { color: var(--accent-color); font-weight: bold; }
+
+    /* Modal Popup */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+    }
+
+    .modal-box {
+      background: var(--card-bg);
+      border: 1px solid var(--accent-color);
+      border-radius: 4px;
+      padding: 25px;
+      width: 85%;
+      max-width: 360px;
+      text-align: center;
+    }
+
+    .modal-msg { margin-bottom: 20px; color: var(--text-main); font-size: 0.85rem; line-height: 1.5; }
+    .modal-btns { display: flex; justify-content: center; gap: 10px; }
+    .modal-btn { padding: 8px 18px; border-radius: 4px; border: none; cursor: pointer; font-family: 'Share Tech Mono', monospace; font-size: 0.85rem; }
+    .btn-yes { background: var(--accent-color); color: #000; font-weight: bold; }
+    .btn-no { background: #252530; color: var(--text-main); }
+
+    /* Responsive Design */
+    @media (max-width: 600px) {
+      nav button { font-size: 0.75rem; padding: 5px; }
+      h1 { font-size: 1.6rem; }
+      .timer-display { font-size: 1.6rem; }
+      .market-grid { grid-template-columns: 1fr; }
+      .map-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav>
+    <button class="active" onclick="switchTab('main', this)">THE FINAL DAY</button>
+    <button onclick="switchTab('market', this)">BLACK MARKET</button>
+    <button onclick="switchTab('guide', this)">SURVIVAL GUIDE</button>
+    <button onclick="switchTab('map', this)">WORLD MAP</button>
+    <button onclick="switchTab('records', this)">RECORDS</button>
+  </nav>
+
+  <div class="container">
+
+    <!-- 1. MAIN TAB -->
+    <div id="tab-main" class="tab-content active">
+      <h1>THE FINAL DAY</h1>
+      <div class="sub-title">TIME REMAINING UNTIL GLOBAL EXTINCTION</div>
+
+      <div class="timer-card">
+        <div class="timer-display" id="timer">00D 00H 00M 00S</div>
+      </div>
+
+      <h2 style="color: var(--accent-color); font-family: 'Cinzel'; font-size: 1.2rem; text-align: center; margin-top: 40px;">SHELTER SUITABILITY TEST</h2>
+      <div class="scan-area">
+        <p id="scan-desc" style="font-size: 0.85rem; color: var(--text-muted);">
+          Evaluating clearance for Underground Bunker Sector-09.<br>Press and hold the scanner.
+        </p>
+        
+        <div class="touch-pad" id="touchPad" onmousedown="startScan()" onmouseup="stopScan()" onmouseleave="stopScan()" ontouchstart="startScan()" ontouchend="stopScan()">
+          🖐️
+        </div>
+
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div class="result-box" id="resultBox"></div>
+      </div>
+    </div>
+
+    <!-- 2. BLACK MARKET TAB -->
+    <div id="tab-market" class="tab-content">
+      <h1>BLACK MARKET</h1>
+      <div class="sub-title">UNSANCTIONED RELICS & SURVIVAL ASSETS</div>
+
+      <div class="market-grid">
+        <!-- Genie Lamp (SOLD OUT) -->
+        <div class="item-card sold-out">
+          <div class="sold-out-badge">OUT OF STOCK</div>
+          <div>
+            <div class="item-title" style="color: var(--text-muted);">Genie's Brass Lamp</div>
+            <div class="item-price" style="color: var(--soldout-color);">USD 9,999,999</div>
+            <div class="item-desc">Unearthed from ancient ruins. Covered in unknown ritual inscriptions.</div>
+          </div>
+          <button class="buy-btn disabled" disabled>SOLD OUT</button>
+        </div>
+
+        <!-- Lucky Rabbit Foot -->
+        <div class="item-card">
+          <div>
+            <div class="item-title">Lucky Rabbit's Foot</div>
+            <div class="item-price">USD 450</div>
+            <div class="item-desc">A bizarre talisman that does not decay even in absolute darkness.</div>
+          </div>
+          <button class="buy-btn" onclick="openModal('rabbit')">PURCHASE</button>
+        </div>
+
+        <!-- Oblivion Elixir -->
+        <div class="item-card">
+          <div>
+            <div class="item-title">Elixir of Oblivion</div>
+            <div class="item-price">USD 1,200</div>
+            <div class="item-desc">A red crystalline fluid said to wipe recent memories entirely upon ingestion.</div>
+          </div>
+          <button class="buy-btn" onclick="openModal('oblivion')">PURCHASE</button>
+        </div>
+
+        <!-- Prophetic Parchment -->
+        <div class="item-card">
+          <div>
+            <div class="item-title">Prophetic Parchment</div>
+            <div class="item-price">USD 7,700</div>
+            <div class="item-desc">A parchment meant to record the future. Yet, it remains completely blank.</div>
+          </div>
+          <button class="buy-btn" onclick="openModal('prophecy')">PURCHASE</button>
+        </div>
+      </div>
+
+      <!-- Live Delivery Tracker (다중 구매 항목 누적 영역) -->
+      <div class="delivery-status-container" id="deliveryContainer">
+        <div class="delivery-title">[ LIVE LOGISTICS TRACKER ]</div>
+        <div id="deliveryList"></div>
+      </div>
+    </div>
+
+    <!-- 3. SURVIVAL GUIDE TAB -->
+    <div id="tab-guide" class="tab-content">
+      <h1>SURVIVAL GUIDE</h1>
+      <div class="sub-title">STANDARD OPERATING PROCEDURES FOR THE END</div>
+
+      <div class="guide-box">
+        <div class="guide-step">PROTOCOL 01: SHELTER ISOLATION</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+          Do not open blast doors for anyone claiming to be family after T-minus 12 hours. Bio-synthetic decoys are active.
+        </div>
+      </div>
+
+      <div class="guide-box">
+        <div class="guide-step">PROTOCOL 02: WATER RATIONING</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+          Rainwater after Phase-2 extinction carries heavy radioactive ash. Filter through charcoal and bone meal before consumption.
+        </div>
+      </div>
+
+      <div class="guide-box">
+        <div class="guide-step">PROTOCOL 03: MENTAL SANITY</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+          Auditory hallucinations usually begin on Day 3. Ignore whispers coming from ventilation shafts.
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. WORLD MAP TAB -->
+    <div id="tab-map" class="tab-content">
+      <h1>SECTOR STATUS</h1>
+      <div class="sub-title">GLOBAL HAZARD MONITORING SYSTEM</div>
+
+      <div class="map-box">
+        <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-bottom: 15px;">
+          GLOBAL INFRASTRUCTURE STATUS OVERVIEW
+        </div>
+
+        <div class="map-grid">
+          <div class="map-cell danger">SECTOR-01<br>[COLLAPSED]</div>
+          <div class="map-cell danger">SECTOR-02<br>[OFFLINE]</div>
+          <div class="map-cell">SECTOR-03<br>[STABLE]</div>
+          <div class="map-cell danger">SECTOR-04<br>[TOXIC]</div>
+          <div class="map-cell">SECTOR-05<br>[WARNING]</div>
+          <div class="map-cell danger">SECTOR-06<br>[LOST]</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. RECORDS TAB -->
+    <div id="tab-records" class="tab-content">
+      <h1>LAST RECORDS</h1>
+      <div class="sub-title">PUBLIC ARCHIVE OF FINAL WORDS</div>
+
+      <div class="input-box">
+        <input type="text" id="authorInput" placeholder="Alias / Identifier (Default: Anonymous)">
+        <textarea id="msgInput" rows="3" placeholder="Inscribe your final message into the mainframe..."></textarea>
+        <button class="submit-btn" onclick="addRecord()">INSCRIBE RECORD</button>
+      </div>
+
+      <div class="records-list" id="recordsList">
+        <div class="record-card">
+          <div class="record-header">
+            <span class="record-author">SYSTEM ADMIN</span>
+            <span>SYSTEM</span>
+          </div>
+          <div class="record-msg" style="font-size: 0.85rem;">Mainframe online. All logs submitted here will be preserved in bunker deep-storage.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Purchase Confirmation Modal -->
+  <div class="modal-overlay" id="purchaseModal">
+    <div class="modal-box">
+      <div class="modal-msg" id="modalText">Proceed with acquisition?</div>
+      <div class="modal-btns">
+        <button class="modal-btn btn-yes" onclick="confirmPurchase()">CONFIRM</button>
+        <button class="modal-btn btn-no" onclick="closeModal()">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab switching
+    function switchTab(tabName, btnElement) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+      
+      document.getElementById('tab-' + tabName).classList.add('active');
+      btnElement.classList.add('active');
+    }
+
+    // Countdown Timer
+    const targetDate = new Date("2026-12-31T23:59:59").getTime();
+
+    function updateTimer() {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance < 0) {
+        document.getElementById("timer").innerText = "TERMINATED";
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      document.getElementById("timer").innerText = 
+        `${String(days).padStart(2, '0')}D ${String(hours).padStart(2, '0')}H ${String(minutes).padStart(2, '0')}M ${String(seconds).padStart(2, '0')}S`;
+    }
+    setInterval(updateTimer, 1000);
+    updateTimer();
+
+    // Fingerprint Scanner logic
+    let scanTimer;
+    let progress = 0;
+
+    function startScan() {
+      const fill = document.getElementById("progressFill");
+      const resultBox = document.getElementById("resultBox");
+      resultBox.style.display = "none";
+      
+      scanTimer = setInterval(() => {
+        progress += 4;
+        fill.style.width = progress + "%";
+
+        if (progress >= 100) {
+          clearInterval(scanTimer);
+          showResult();
+        }
+      }, 50);
+    }
+
+    function stopScan() {
+      clearInterval(scanTimer);
+      if (progress < 100) {
+        progress = 0;
+        document.getElementById("progressFill").style.width = "0%";
+      }
+    }
+
+    function showResult() {
+      const resultBox = document.getElementById("resultBox");
+      const results = [
+        "STATUS: [EGOISM INDEX EXCEEDED] - Clearance denied for Bunker Sector-09.",
+        "STATUS: [GENETIC SYNCHRONIZATION FAILED] - Biological signature rejected.",
+        "STATUS: [CLEARANCE GRANTED] - Error: No remaining shelter capacity available."
+      ];
+      resultBox.innerText = results[Math.floor(Math.random() * results.length)];
+      resultBox.style.display = "block";
+      progress = 0;
+      document.getElementById("progressFill").style.width = "0%";
+    }
+
+    // Modal & Multi-Purchase Logistics Tracker
+    let currentItem = '';
+
+    function openModal(item) {
+      currentItem = item;
+      const modalText = document.getElementById("modalText");
+      
+      if (item === 'rabbit') {
+        modalText.innerText = "Efficacy of this charm is not guaranteed. Authorize payment?";
+      } else if (item === 'oblivion') {
+        modalText.innerText = "You have purchased this item 3 times prior. Proceed again?";
+      } else if (item === 'prophecy') {
+        modalText.innerText = "The parchment remains blank upon inspection. Confirm purchase?";
+      }
+
+      document.getElementById("purchaseModal").style.display = "flex";
+    }
+
+    function closeModal() {
+      document.getElementById("purchaseModal").style.display = "none";
+    }
+
+    function confirmPurchase() {
+      closeModal();
+
+      const deliveryContainer = document.getElementById("deliveryContainer");
+      const deliveryList = document.getElementById("deliveryList");
+      
+      let itemName = "";
+      if (currentItem === 'rabbit') itemName = "Lucky Rabbit's Foot";
+      if (currentItem === 'oblivion') itemName = "Elixir of Oblivion";
+      if (currentItem === 'prophecy') itemName = "Prophetic Parchment";
+
+      // 배송 컨테이너 표시
+      deliveryContainer.style.display = "block";
+
+      // 개별 배송 아이템 생성
+      const itemElement = document.createElement("div");
+      itemElement.className = "delivery-item";
+      
+      const now = new Date();
+      const timeStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      itemElement.innerHTML = `
+        <div style="display: flex; justify-content: space-between;">
+          <strong style="color: var(--text-main);">[ ${itemName} ]</strong>
+          <span style="color: var(--text-muted); font-size: 0.75rem;">${timeStr}</span>
+        </div>
+        <div style="color: var(--accent-color); font-size: 0.8rem; margin-top: 2px;">STATUS: IN TRANSIT</div>
+        <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 2px;">
+          ※ Estimated Delivery: <strong>3 Years After Mass Extinction</strong>
+        </div>
+      `;
+
+      // 최신 구매 건이 맨 위로 오도록 추가
+      deliveryList.insertBefore(itemElement, deliveryList.firstChild);
+    }
+
+    // Records (Board) functionality
+    function addRecord() {
+      const author = document.getElementById("authorInput").value.trim() || "Anonymous";
+      const msg = document.getElementById("msgInput").value.trim();
+
+      if (!msg) {
+        alert("Please enter a message to inscribe.");
+        return;
+      }
+
+      const list = document.getElementById("recordsList");
+      const card = document.createElement("div");
+      card.className = "record-card";
+
+      const now = new Date();
+      const timeStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      card.innerHTML = `
+        <div class="record-header">
+          <span class="record-author">${author}</span>
+          <span>${timeStr}</span>
+        </div>
+        <div class="record-msg" style="font-size: 0.85rem;">${msg}</div>
+      `;
+
+      list.insertBefore(card, list.firstChild);
+      document.getElementById("msgInput").value = "";
+    }
+  </script>
+</body>
+</html>
