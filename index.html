@@ -36,6 +36,7 @@
       border-bottom: 1px solid var(--border-color);
       display: flex;
       justify-content: center;
+      align-items: center;
       gap: 10px;
       padding: 15px 0;
       position: sticky;
@@ -59,6 +60,25 @@
     nav button:hover, nav button.active {
       color: var(--accent-color);
       border-bottom: 2px solid var(--accent-color);
+    }
+
+    /* Top Right Refresh Logo */
+    .top-logo {
+      position: absolute;
+      right: 20px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--accent-color);
+      cursor: pointer;
+      user-select: none;
+      letter-spacing: 1px;
+      transition: 0.2s;
+    }
+
+    .top-logo:hover {
+      color: var(--accent-hover);
+      transform: scale(1.05);
     }
 
     .container {
@@ -236,7 +256,6 @@
       letter-spacing: 1px;
     }
 
-    /* Delivery Status Box (다중 목록 지원) */
     .delivery-status-container {
       margin-top: 20px;
       margin-bottom: 50px;
@@ -300,19 +319,71 @@
 
     .map-cell.danger { border-color: var(--accent-color); color: var(--accent-color); }
 
-    /* 4. Records (Board) */
+    /* 4. Records (Board & Auth) */
+    .auth-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 15px 20px;
+      margin-top: 20px;
+      margin-bottom: 15px;
+    }
+
+    .auth-form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .auth-input {
+      background: #08080a;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 10px;
+      border-radius: 4px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.8rem;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .auth-btn {
+      background: #181820;
+      border: 1px solid var(--accent-color);
+      color: var(--accent-color);
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .auth-btn:hover {
+      background: var(--accent-color);
+      color: #000;
+    }
+
+    .user-status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+
     .input-box {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 4px;
       padding: 20px;
-      margin-top: 25px;
+      margin-top: 10px;
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
 
-    input[type="text"], textarea {
+    input[type="text"], input[type="password"], textarea {
       background: #08080a;
       border: 1px solid var(--border-color);
       color: var(--text-main);
@@ -389,6 +460,7 @@
     /* Responsive Design */
     @media (max-width: 600px) {
       nav button { font-size: 0.75rem; padding: 5px; }
+      .top-logo { position: static; margin-bottom: 5px; }
       h1 { font-size: 1.6rem; }
       .timer-display { font-size: 1.6rem; }
       .market-grid { grid-template-columns: 1fr; }
@@ -405,6 +477,9 @@
     <button onclick="switchTab('guide', this)">SURVIVAL GUIDE</button>
     <button onclick="switchTab('map', this)">WORLD MAP</button>
     <button onclick="switchTab('records', this)">RECORDS</button>
+    
+    <!-- 1. Right Top Refresh Logo -->
+    <div class="top-logo" onclick="location.reload()" title="Click to Refresh">⚡ TFD-09</div>
   </nav>
 
   <div class="container">
@@ -442,7 +517,6 @@
       <div class="sub-title">UNSANCTIONED RELICS & SURVIVAL ASSETS</div>
 
       <div class="market-grid">
-        <!-- Genie Lamp (SOLD OUT) -->
         <div class="item-card sold-out">
           <div class="sold-out-badge">OUT OF STOCK</div>
           <div>
@@ -453,7 +527,6 @@
           <button class="buy-btn disabled" disabled>SOLD OUT</button>
         </div>
 
-        <!-- Lucky Rabbit Foot -->
         <div class="item-card">
           <div>
             <div class="item-title">Lucky Rabbit's Foot</div>
@@ -463,7 +536,6 @@
           <button class="buy-btn" onclick="openModal('rabbit')">PURCHASE</button>
         </div>
 
-        <!-- Oblivion Elixir -->
         <div class="item-card">
           <div>
             <div class="item-title">Elixir of Oblivion</div>
@@ -473,7 +545,6 @@
           <button class="buy-btn" onclick="openModal('oblivion')">PURCHASE</button>
         </div>
 
-        <!-- Prophetic Parchment -->
         <div class="item-card">
           <div>
             <div class="item-title">Prophetic Parchment</div>
@@ -484,7 +555,6 @@
         </div>
       </div>
 
-      <!-- Live Delivery Tracker (다중 구매 항목 누적 영역) -->
       <div class="delivery-status-container" id="deliveryContainer">
         <div class="delivery-title">[ LIVE LOGISTICS TRACKER ]</div>
         <div id="deliveryList"></div>
@@ -539,17 +609,44 @@
       </div>
     </div>
 
-    <!-- 5. RECORDS TAB -->
+    <!-- 5. RECORDS TAB (AUTH & CHAT) -->
     <div id="tab-records" class="tab-content">
       <h1>LAST RECORDS</h1>
       <div class="sub-title">PUBLIC ARCHIVE OF FINAL WORDS</div>
 
+      <!-- Auth Container -->
+      <div class="auth-box">
+        <!-- Logged Out View -->
+        <div id="loggedOutView">
+          <div class="auth-form">
+            <input type="text" id="authNick" class="auth-input" placeholder="Nickname">
+            <input type="password" id="authPw" class="auth-input" placeholder="Password">
+            <button class="auth-btn" onclick="handleLogin()">LOGIN</button>
+            <button class="auth-btn" onclick="handleRegister()">REGISTER</button>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 8px;">
+            ※ Non-logged in users will post as <strong>Anonymous 1, 2...</strong>
+          </div>
+        </div>
+
+        <!-- Logged In View -->
+        <div id="loggedInView" style="display: none;">
+          <div class="user-status-bar">
+            <div>
+              AUTHENTICATED: <strong id="userNickDisplay" style="color: var(--accent-color);"></strong>
+            </div>
+            <button class="auth-btn" onclick="handleLogout()">LOGOUT</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Message Input Box -->
       <div class="input-box">
-        <input type="text" id="authorInput" placeholder="Alias / Identifier (Default: Anonymous)">
         <textarea id="msgInput" rows="3" placeholder="Inscribe your final message into the mainframe..."></textarea>
         <button class="submit-btn" onclick="addRecord()">INSCRIBE RECORD</button>
       </div>
 
+      <!-- Message List -->
       <div class="records-list" id="recordsList">
         <div class="record-card">
           <div class="record-header">
@@ -681,10 +778,8 @@
       if (currentItem === 'oblivion') itemName = "Elixir of Oblivion";
       if (currentItem === 'prophecy') itemName = "Prophetic Parchment";
 
-      // 배송 컨테이너 표시
       deliveryContainer.style.display = "block";
 
-      // 개별 배송 아이템 생성
       const itemElement = document.createElement("div");
       itemElement.className = "delivery-item";
       
@@ -702,18 +797,71 @@
         </div>
       `;
 
-      // 최신 구매 건이 맨 위로 오도록 추가
       deliveryList.insertBefore(itemElement, deliveryList.firstChild);
     }
 
-    // Records (Board) functionality
+    // 2. Auth & Records (Board) Logic
+    let usersDb = {}; // 간단 유저 데이터베이스 { nick: pw }
+    let currentUser = null; // 현재 로그인된 사용자
+    let anonCount = 0; // 익명 번호 카운터
+
+    function handleRegister() {
+      const nick = document.getElementById("authNick").value.trim();
+      const pw = document.getElementById("authPw").value.trim();
+
+      if (!nick || !pw) {
+        alert("닉네임과 비밀번호를 모두 입력해줘.");
+        return;
+      }
+
+      if (usersDb[nick]) {
+        alert("이미 존재하는 닉네임이야.");
+        return;
+      }
+
+      usersDb[nick] = pw;
+      alert("가입 성공! 이제 로그인해줘.");
+      document.getElementById("authPw").value = "";
+    }
+
+    function handleLogin() {
+      const nick = document.getElementById("authNick").value.trim();
+      const pw = document.getElementById("authPw").value.trim();
+
+      if (!usersDb[nick] || usersDb[nick] !== pw) {
+        alert("닉네임 또는 비밀번호가 잘못되었어.");
+        return;
+      }
+
+      currentUser = nick;
+      document.getElementById("userNickDisplay").innerText = currentUser;
+      document.getElementById("loggedOutView").style.display = "none";
+      document.getElementById("loggedInView").style.display = "block";
+      
+      document.getElementById("authNick").value = "";
+      document.getElementById("authPw").value = "";
+    }
+
+    function handleLogout() {
+      currentUser = null;
+      document.getElementById("loggedInView").style.display = "none";
+      document.getElementById("loggedOutView").style.display = "block";
+    }
+
     function addRecord() {
-      const author = document.getElementById("authorInput").value.trim() || "Anonymous";
       const msg = document.getElementById("msgInput").value.trim();
 
       if (!msg) {
-        alert("Please enter a message to inscribe.");
+        alert("메시지를 입력해줘.");
         return;
+      }
+
+      let authorName = "";
+      if (currentUser) {
+        authorName = currentUser;
+      } else {
+        anonCount++;
+        authorName = `익명${anonCount}`;
       }
 
       const list = document.getElementById("recordsList");
@@ -725,7 +873,7 @@
 
       card.innerHTML = `
         <div class="record-header">
-          <span class="record-author">${author}</span>
+          <span class="record-author">${authorName}</span>
           <span>${timeStr}</span>
         </div>
         <div class="record-msg" style="font-size: 0.85rem;">${msg}</div>
